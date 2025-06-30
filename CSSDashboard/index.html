@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>CSS Dashboard</title>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <header>
+      <h1>DASHBOARD</h1>
+      <form class="search-form" role="search">
+        <label for="search" class="visually-hidden">Search: </label>
+        <input
+          type="search"
+          id="search"
+          name="search"
+          placeholder="Search..."
+        />
+      </form>
+      <button id="hamburger_btn">-</button>
+    </header>
+    <div class="main_container">
+      <main class="main" id="main">
+        <div class="carousel">
+          <img src="images/1.jpg" alt="Pic 1" />
+          <img src="images/2.jpg" alt="Pic 2" />
+          <img src="images/3.jpg" alt="Pic 3" />
+        </div>
+      </main>
+      <aside class="sidebar">
+        <button id="theme_btn">Change Theme</button>
+        <button id="outline_btn">Click Me!</button>
+      </aside>
+    </div>
+  </body>
+  <script>
+    const toggleMenu = document.getElementById("hamburger_btn");
+    const toggleDark = document.getElementById("theme_btn");
+    const sidebar = document.getElementById("sidebar");
+    const body = document.body;
+
+    toggleMenu.addEventListener("click", () => {
+      sidebar.classList.toggle("visible");
+    });
+
+    toggleDark.addEventListener("click", () => {
+      body.classList.toggle("dark");
+      localStorage.setItem("darkMode", body.classList.contains("dark"));
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const dark = localStorage.getItem("darkMode") === "true";
+      if (dark) {
+        body.classList.add("dark");
+      }
+    });
+  </script>
+</html>
