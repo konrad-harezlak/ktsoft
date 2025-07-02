@@ -1,0 +1,79 @@
+-- 1. Tabela działów
+CREATE TABLE Departments (
+    DepartmentID   INT         PRIMARY KEY,
+    DepartmentName VARCHAR(100) NOT NULL
+);
+
+-- 2. Tabela pracowników
+CREATE TABLE Employees (
+    EmployeeID  INT       PRIMARY KEY,
+    FirstName   VARCHAR(50) NOT NULL,
+    LastName    VARCHAR(50) NOT NULL,
+    DepartmentID INT      NOT NULL,
+    ManagerID   INT       NULL,
+    Salary      DECIMAL(10,2) NOT NULL,
+    HireDate    DATE      NOT NULL,
+    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID),
+    FOREIGN KEY (ManagerID)    REFERENCES Employees(EmployeeID)
+);
+
+-- 3. Tabela projektów
+CREATE TABLE Projects (
+    ProjectID   INT       PRIMARY KEY,
+    ProjectName VARCHAR(150) NOT NULL,
+    StartDate   DATE     NOT NULL,
+    EndDate     DATE     NULL
+);
+
+-- 4. Tabela przypisań pracownik–projekt (wiele do wielu)
+CREATE TABLE EmployeeProjects (
+    EmployeeID INT NOT NULL,
+    ProjectID  INT NOT NULL,
+    PRIMARY KEY (EmployeeID, ProjectID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
+    FOREIGN KEY (ProjectID)  REFERENCES Projects(ProjectID)
+);
+-- Wczytanie działów
+INSERT INTO Departments (DepartmentID, DepartmentName) VALUES
+ (1, 'HR'),
+ (2, 'IT'),
+ (3, 'Sales');
+
+-- Wczytanie pracowników
+INSERT INTO Employees (EmployeeID, FirstName, LastName, DepartmentID, ManagerID, Salary,   HireDate) VALUES
+ (1, 'Anna',      'Nowak',       1, NULL,     250000.00, '2018-03-01'),
+ (2, 'Piotr',     'Zieliński',   2, 1,        150000.00, '2019-07-15'),
+ (3, 'Marta',     'Wiśniewska',  2, 2,        120000.00, '2020-01-20'),
+ (4, 'Tomasz',    'Wójcik',      2, 2,        110000.00, '2021-05-10'),
+ (5, 'Agnieszka', 'Kowalczyk',   3, 1,        140000.00, '2019-11-05'),
+ (6, 'Michał',    'Lewandowski', 3, 5,        100000.00, '2020-08-12'),
+ (7, 'Katarzyna', 'Dąbrowska',   1, 1,        130000.00, '2021-02-28'),
+ (8, 'Paweł',     'Kamiński',    1, 7,         90000.00, '2022-04-01'),
+ (9, 'Łukasz',    'Kozłowski',    3, 5,         95000.00, '2022-06-15'),
+ (10,'Dorota',    'Jankowska',   2, 2,        115000.00, '2023-01-10');
+
+-- Wczytanie projektów
+INSERT INTO Projects (ProjectID, ProjectName,        StartDate,   EndDate) VALUES
+ (1, 'Website Redesign',    '2024-01-15', '2024-06-30'),
+ (2, 'Mobile App',          '2024-02-01', NULL),
+ (3, 'Data Analysis',       '2023-11-01', '2024-03-31');
+
+-- Przypisania pracowników do projektów
+INSERT INTO EmployeeProjects (EmployeeID, ProjectID) VALUES
+ (2, 1), (3, 1), (4, 1),
+ (2, 2), (6, 2), (7, 2),
+ (5, 3), (9, 3), (10, 3);
+
+--1
+select * from Employees ORDER by lastname, firstname
+--2
+SELECT D.DepartmentName, COUNT(E.employeeid) FROM Employees as E join Departments as D on E.DepartmentID=D.DepartmentID GROUP BY D.DepartmentID ORDER BY COUNT(e.EmployeeID) desc
+--3
+SELECT D.DepartmentName, SUM(E.Salary) FROM Employees as E join Departments as D on E.DepartmentID=D.DepartmentID GROUP BY D.DepartmentID HAVING SUM(e.Salary)>150000 ORDER BY SUM(e.Salary) desc 
+--4
+SELECT P.ProjectName, COUNT(E.EmployeeID) AS AssignedEmployees FROM Projects AS P LEFT JOIN EmployeeProjects AS E ON P.ProjectID = E.ProjectID GROUP BY P.ProjectName ORDER BY AssignedEmployees DESC;
+--5
+SELECT FirstName, LastName FROM Employees WHERE Salary > (SELECT AVG(Salary) FROM Employees) 
+--6
+WITH DepartmentAverages AS (SELECT DepartmentID, AVG(Salary) AS AvgS FROM Employees GROUP BY DepartmentID)
+SELECT E.EmployeeID, E.FirstName, E.LastName, D.DepartmentName, E.Salary FROM Employees as E JOIN Departments as D ON E.DepartmentID = D.DepartmentID JOIN DepartmentAverages as DA ON E.DepartmentID = DA.DepartmentID  WHERE E.Salary > DA.AvgS
